@@ -1,0 +1,13 @@
+Judge clarity for the audited final reply.
+
+correct_grammar:
+- Fail only for grammar problems visible in the audited reply.
+
+no_typos:
+- Fail only for typos visible in the audited reply.
+
+no_repetition:
+- Fail when repeated wording makes the reply worse or confusing.
+
+understandable:
+- Fail when the customer would not be able to understand the audited reply in context.

@@ -1,0 +1,12 @@
+default_backend: ollama
+allow_heuristic_fallback: true
+
+ollama:
+  base_url: ${OLLAMA_BASE_URL:-http://localhost:11434}
+  model: ${OLLAMA_MODEL:-llama3.1:8b-instruct-q8_0}
+  request_timeout_seconds: 120
+  use_json_schema: true
+  options:
+    temperature: 0
+    top_p: 0.1
+    num_ctx: 8192

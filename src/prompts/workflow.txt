@@ -1,0 +1,7 @@
+Judge workflow compliance for the audited final reply.
+
+Use only the structured evidence sources named in each subcategory:
+checkout_page, company_profile, conversation, customer_profile, notes, product_information, promo_notes, templates, and website.
+
+Pass when the audited reply uses the needed source or does not require that source.
+Fail when the reply depends on a source that is missing or contradicts a provided source.

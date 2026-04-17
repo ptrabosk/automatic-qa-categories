@@ -1,0 +1,17 @@
+Judge whether the audited final reply provides a proper resolution.
+
+efficient_troubleshooting:
+- Pass when the reply gives the next useful troubleshooting step or answer supported by the JSON.
+- Fail when it adds avoidable friction or skips obvious provided evidence.
+
+correct_escalation:
+- Pass when escalation matches workflow flags, notes, or prior context.
+- Fail when the JSON requires escalation and the reply does not escalate, or escalation is explicitly unsupported.
+
+double_text:
+- Pass when the audited reply is not merely a duplicate of an earlier agent message.
+- Fail when it repeats a previous agent message as the final reply.
+
+partial_reply:
+- Pass when the reply addresses the complete latest customer need.
+- Fail when it answers only part of the issue represented in the JSON thread.

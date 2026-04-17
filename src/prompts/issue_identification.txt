@@ -1,0 +1,9 @@
+Judge issue identification for the audited final agent reply.
+
+intent_identified:
+- Pass when the audited reply recognizes the latest customer need using the prior thread context.
+- Fail when the reply addresses a different issue or ignores the latest customer need.
+
+necessary_reply:
+- Pass when a reply was warranted and the audited reply responds to the relevant latest customer turn.
+- Fail when workflow context indicates no reply should have been sent, or when the reply is unnecessary noise.

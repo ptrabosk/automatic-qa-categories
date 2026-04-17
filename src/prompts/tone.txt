@@ -1,0 +1,12 @@
+Judge tone for the audited final reply.
+
+empathetic:
+- Pass when the reply acknowledges friction, concern, or effort where the thread calls for it.
+
+personalized:
+- Pass when the reply uses available customer/thread details appropriately.
+- Do not require personalization when no usable details are present.
+
+preferred_tone_followed:
+- Pass when the reply follows tone preferences found in company_profile or templates.
+- Fail only when the JSON contains a tone preference and the audited reply conflicts with it.

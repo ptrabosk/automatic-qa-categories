@@ -1,0 +1,45 @@
+version: 1
+specialists:
+  issue_identification:
+    prompt_file: issue_identification.txt
+    evidence_fields: [messages, latest_customer_turn, workflow_flags]
+    subcategories: [intent_identified, necessary_reply]
+  proper_resolution:
+    prompt_file: proper_resolution.txt
+    evidence_fields: [messages, workflow_flags, notes, product_information]
+    subcategories: [efficient_troubleshooting, correct_escalation, double_text, partial_reply]
+  workflow:
+    prompt_file: workflow.txt
+    evidence_fields:
+      - checkout_page
+      - company_profile
+      - conversation
+      - customer_profile
+      - notes
+      - product_information
+      - promo_notes
+      - templates
+      - website_findings
+      - workflow_flags
+    subcategories:
+      - checkout_page
+      - company_profile
+      - conversation
+      - customer_profile
+      - notes
+      - product_information
+      - promo_notes
+      - templates
+      - website
+  clarity:
+    prompt_file: clarity.txt
+    evidence_fields: [audited_message]
+    subcategories: [correct_grammar, no_typos, no_repetition, understandable]
+  tone:
+    prompt_file: tone.txt
+    evidence_fields: [company_profile, customer_profile, templates, messages]
+    subcategories: [empathetic, personalized, preferred_tone_followed]
+  zero_tolerance:
+    prompt_file: zero_tolerance.txt
+    evidence_fields: [messages, latest_customer_turn, audited_message]
+    subcategories: [opt_out, personal_information, inappropriate_language]

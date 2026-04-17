@@ -1,0 +1,192 @@
+version: 1
+
+aggregation:
+  deterministic_hard_fail_wins: true
+  deterministic_fail_overrides_llm: true
+  deterministic_only_uses_validator_result: true
+  required_failure_sets_overall_zero: true
+  default_missing_confidence: 0.25
+
+note_writing:
+  max_words: 28
+  required_when_score_is_zero: true
+  instructions:
+    - Explain why the audited final agent message failed.
+    - Reference only facts present in the JSON input.
+    - Do not cite policies unless the policy appears in this rubric/config.
+    - Avoid generic notes such as "did not meet expectations".
+
+categories:
+  issue_identification:
+    display_name: Issue Identification
+    subcategories:
+      intent_identified:
+        method: hybrid
+        best_approach: hybrid leaning llm
+        required_for_overall: true
+        deterministic_precedence: soft
+        evidence_requirements: [messages, latest_customer_turn, audited_message]
+      necessary_reply:
+        method: hybrid
+        best_approach: hybrid leaning llm with workflow gates
+        required_for_overall: true
+        deterministic_precedence: hard_fail
+        evidence_requirements: [messages, workflow_flags, latest_customer_turn, audited_message]
+
+  proper_resolution:
+    display_name: Proper Resolution
+    subcategories:
+      efficient_troubleshooting:
+        method: hybrid
+        best_approach: hybrid
+        required_for_overall: true
+        deterministic_precedence: soft
+        evidence_requirements: [messages, product_information, notes]
+      correct_escalation:
+        method: hybrid
+        best_approach: rule-heavy hybrid
+        required_for_overall: true
+        deterministic_precedence: hard_fail
+        evidence_requirements: [messages, workflow_flags, notes]
+      double_text:
+        method: hybrid
+        best_approach: hybrid with sequence rules first
+        required_for_overall: true
+        deterministic_precedence: hard_fail
+        evidence_requirements: [messages, audited_message]
+      partial_reply:
+        method: llm
+        best_approach: llm-heavy hybrid
+        required_for_overall: true
+        deterministic_precedence: soft
+        evidence_requirements: [messages, audited_message]
+
+  workflow:
+    display_name: Workflow
+    subcategories:
+      checkout_page:
+        method: hybrid
+        best_approach: rule-heavy hybrid
+        required_for_overall: true
+        deterministic_precedence: hard_fail
+        evidence_requirements: [checkout_page, audited_message]
+      company_profile:
+        method: hybrid
+        best_approach: rule-heavy hybrid
+        required_for_overall: true
+        deterministic_precedence: hard_fail
+        evidence_requirements: [company_profile, audited_message]
+      conversation:
+        method: hybrid
+        best_approach: hybrid
+        required_for_overall: true
+        deterministic_precedence: soft
+        evidence_requirements: [messages, audited_message]
+      customer_profile:
+        method: hybrid
+        best_approach: rule-heavy hybrid
+        required_for_overall: true
+        deterministic_precedence: hard_fail
+        evidence_requirements: [customer_profile, audited_message]
+      notes:
+        method: hybrid
+        best_approach: rule-heavy hybrid
+        required_for_overall: true
+        deterministic_precedence: hard_fail
+        evidence_requirements: [notes, audited_message]
+      product_information:
+        method: hybrid
+        best_approach: hybrid
+        required_for_overall: true
+        deterministic_precedence: soft
+        evidence_requirements: [product_information, audited_message]
+      promo_notes:
+        method: hybrid
+        best_approach: rule-heavy hybrid
+        required_for_overall: true
+        deterministic_precedence: hard_fail
+        evidence_requirements: [promo_notes, audited_message]
+      templates:
+        method: hybrid
+        best_approach: rule-heavy hybrid
+        required_for_overall: true
+        deterministic_precedence: hard_fail
+        evidence_requirements: [templates, audited_message]
+      website:
+        method: hybrid
+        best_approach: rule-heavy hybrid
+        required_for_overall: true
+        deterministic_precedence: hard_fail
+        evidence_requirements: [website_findings, link_metadata, audited_message]
+
+  clarity:
+    display_name: Clarity
+    subcategories:
+      correct_grammar:
+        method: hybrid
+        best_approach: deterministic-heavy hybrid
+        required_for_overall: true
+        deterministic_precedence: hard_fail
+        evidence_requirements: [audited_message]
+      no_typos:
+        method: hybrid
+        best_approach: deterministic-heavy hybrid
+        required_for_overall: true
+        deterministic_precedence: hard_fail
+        evidence_requirements: [audited_message]
+      no_repetition:
+        method: hybrid
+        best_approach: hybrid
+        required_for_overall: true
+        deterministic_precedence: hard_fail
+        evidence_requirements: [audited_message]
+      understandable:
+        method: llm
+        best_approach: llm-heavy hybrid
+        required_for_overall: true
+        deterministic_precedence: soft
+        evidence_requirements: [audited_message]
+
+  tone:
+    display_name: Tone
+    subcategories:
+      empathetic:
+        method: llm
+        best_approach: llm-heavy
+        required_for_overall: true
+        deterministic_precedence: soft
+        evidence_requirements: [messages, latest_customer_turn, audited_message]
+      personalized:
+        method: llm
+        best_approach: llm-heavy hybrid
+        required_for_overall: true
+        deterministic_precedence: soft
+        evidence_requirements: [customer_profile, messages, audited_message]
+      preferred_tone_followed:
+        method: hybrid
+        best_approach: hybrid
+        required_for_overall: true
+        deterministic_precedence: soft
+        evidence_requirements: [company_profile, templates, audited_message]
+
+  zero_tolerance:
+    display_name: Zero Tolerance
+    subcategories:
+      opt_out:
+        method: hybrid
+        best_approach: deterministic-heavy hybrid
+        required_for_overall: true
+        deterministic_precedence: hard_fail
+        evidence_requirements: [messages, latest_customer_turn, audited_message]
+      personal_information:
+        method: hybrid
+        best_approach: deterministic-heavy hybrid
+        required_for_overall: true
+        deterministic_precedence: hard_fail
+        evidence_requirements: [messages, audited_message]
+      inappropriate_language:
+        method: hybrid
+        best_approach: deterministic-heavy hybrid
+        required_for_overall: true
+        deterministic_precedence: hard_fail
+        evidence_requirements: [audited_message]
