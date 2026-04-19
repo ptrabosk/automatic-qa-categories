@@ -8,6 +8,8 @@ from src.training.jsonl_export import write_jsonl
 from src.training.manual_score_joiner import (
     build_chat_training_rows,
     build_joined_training_rows,
+    oversample_failure_rows,
+    row_has_failure_label,
     split_training_rows,
 )
 from src.utils.files import write_json
@@ -18,7 +20,7 @@ def main() -> None:
         description="Join conversation CSV and manual QA score CSV into LLM training JSONL."
     )
     parser.add_argument("--conversations", required=True, help="Path to qa_training_set.csv")
-    parser.add_argument("--scores", required=True, help="Path to qa.csv")
+    parser.add_argument("--scores", required=True, help="Path to score CSV")
     parser.add_argument("--output", required=True, help="Output JSONL path")
     parser.add_argument("--templates", help="Optional separate templates CSV/JSON/JSONL keyed by SEND_ID")
     parser.add_argument("--config-dir", default="config")
@@ -34,6 +36,15 @@ def main() -> None:
     parser.add_argument("--train-ratio", type=float, default=0.8)
     parser.add_argument("--validation-ratio", type=float, default=0.1)
     parser.add_argument("--skip-unmatched", action="store_true")
+    parser.add_argument(
+        "--failure-oversample-factor",
+        type=int,
+        default=1,
+        help=(
+            "Repeat rows with at least one 0 score this many times. "
+            "When --split-dir is used, this is applied only to the train split."
+        ),
+    )
     args = parser.parse_args()
 
     rows = build_joined_training_rows(
@@ -44,7 +55,10 @@ def main() -> None:
         skip_unmatched=args.skip_unmatched,
         templates_file=args.templates,
     )
-    chat_rows = build_chat_training_rows(rows, include_metadata=args.include_metadata)
+    output_rows = oversample_failure_rows(
+        rows, failure_oversample_factor=args.failure_oversample_factor
+    )
+    chat_rows = build_chat_training_rows(output_rows, include_metadata=args.include_metadata)
     write_jsonl(args.output, chat_rows)
 
     if args.raw_json_output:
@@ -53,14 +67,24 @@ def main() -> None:
     if args.split_dir:
         split_dir = Path(args.split_dir)
         splits = split_training_rows(
-            chat_rows,
+            rows,
             train_ratio=args.train_ratio,
             validation_ratio=args.validation_ratio,
             seed=args.seed,
         )
+        splits["train"] = oversample_failure_rows(
+            splits["train"], failure_oversample_factor=args.failure_oversample_factor
+        )
         for name, split_rows in splits.items():
-            write_jsonl(split_dir / f"{name}.jsonl", split_rows)
+            write_jsonl(
+                split_dir / f"{name}.jsonl",
+                build_chat_training_rows(split_rows, include_metadata=args.include_metadata),
+            )
         write_json(split_dir / "split_counts.json", {name: len(items) for name, items in splits.items()})
+        write_json(
+            split_dir / "split_failure_counts.json",
+            {name: sum(1 for item in items if row_has_failure_label(item)) for name, items in splits.items()},
+        )
 
     print(f"Wrote {len(chat_rows)} chat training rows to {args.output}")
     if rows:

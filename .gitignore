@@ -1,4 +1,32 @@
-# Large/generated training data
-examples/qa_training_set.csv
-examples/qa_llm_training.jsonl
-examples/llm_training_splits/train.jsonl
+# Python/runtime
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+*.egg-info/
+
+# OS/editor
+.DS_Store
+.codex
+
+# Large source exports that should be supplied locally
+examples/qa_training_set*.csv
+examples/full_qa_training_set*.csv
+examples/qa.csv
+
+# Generated training data and evaluation output
+examples/qa_llm_training*.jsonl
+examples/llm_training_splits/
+examples/category_training_splits/
+examples/category_send_id_selections/
+reports/
+outputs/
+wandb/
+
+# Model artifacts/adapters/checkpoints
+models/
+checkpoint-*/
+*.safetensors
+*.pt
+*.pth
+*.bin

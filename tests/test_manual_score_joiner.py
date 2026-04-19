@@ -8,6 +8,7 @@ from src.training.manual_score_joiner import (
     SCORE_COLUMN_MAP,
     build_chat_training_rows,
     build_joined_training_rows,
+    oversample_failure_rows,
 )
 
 
@@ -40,6 +41,32 @@ def test_manual_scores_join_to_chat_training_rows(tmp_path: Path) -> None:
     assert assistant["scores"] == labels
     assert set(chat_rows[0]) == {"messages"}
     assert "zero_tolerance.opt_out" in rows[0]["label_metadata"]["unlabeled_active_subcategories"]
+
+
+def test_failure_rows_can_be_oversampled(tmp_path: Path) -> None:
+    conversations = tmp_path / "qa_training_set.csv"
+    scores = tmp_path / "qa.csv"
+    _write_conversations_csv(conversations)
+    _write_scores_csv(scores)
+
+    rows = build_joined_training_rows(conversations, scores)
+    balanced_rows = oversample_failure_rows(rows, failure_oversample_factor=3)
+
+    assert len(balanced_rows) == 3
+    assert [row["send_id"] for row in balanced_rows] == ["send-1", "send-1", "send-1"]
+
+
+def test_short_score_export_headers_are_supported(tmp_path: Path) -> None:
+    conversations = tmp_path / "qa_training_set.csv"
+    scores = tmp_path / "all_qa_scores.csv"
+    _write_conversations_csv(conversations)
+    _write_short_scores_csv(scores)
+
+    rows = build_joined_training_rows(conversations, scores)
+
+    labels = rows[0]["labels"]["scores"]
+    assert labels["issue_identification.intent_identified"] == 1
+    assert labels["workflow.conversation"] == 0
 
 
 def _write_conversations_csv(path: Path) -> None:
@@ -102,6 +129,23 @@ def _write_scores_csv(path: Path) -> None:
         row["Concierge QA Audit Scores Total Intent Identified Score Count"] = "2"
         row["Concierge QA Audit Scores Total Conversation Score Count"] = "0"
         writer.writerow(row)
+
+
+def _write_short_scores_csv(path: Path) -> None:
+    columns = ["", "Send ID", *[_short_score_column(column) for column in SCORE_COLUMN_MAP]]
+    with path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=columns)
+        writer.writeheader()
+        row = {"": "1", "Send ID": "send-1"}
+        for column in SCORE_COLUMN_MAP:
+            row[_short_score_column(column)] = "1"
+        row["Total Intent Identified Score Count"] = "2"
+        row["Total Conversation Score Count"] = "0"
+        writer.writerow(row)
+
+
+def _short_score_column(column: str) -> str:
+    return column.removeprefix("Concierge QA Audit Scores ")
 
 
 def _write_templates_csv(path: Path) -> None:
